@@ -1,2 +1,2 @@
 # Movies-Library
-Task day 11 - Prep course - JV : HR-management-system
+Task day 11 - Prep course - JV : Movies-Library
