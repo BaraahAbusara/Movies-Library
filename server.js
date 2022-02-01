@@ -3,23 +3,29 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const pg = require('pg');
 const moviesDataJson = require('./Movies-data/data.json'); 
+const client = new pg.Client(process.env.DATABASE_URL);
 
-const url1 = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}&language=en-US`
+const url1 = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}&language=en-US`;
  
 const PORT = process.env.PORT;
 
+
 const server = express();
 server.use(cors());
+server.use(express.json());
 
 server.get('/', handleGet); //home 1
-server.get('/favourite', handleFavPage); //fav 1
-server.get('/trending', handleTrendingPage); //trending 0
-server.get('/search', handleSearchPage); //search 0
-server.get('*', handleErrorNotFound); //404 1
+server.get('/favourite', handleFavPage); //fav 
+server.get('/trending', handleTrendingPage); //trending 
+server.get('/search', handleSearchPage); //search ::  localhost:3000/search?searchedMovie=women
+server.post('/addMovie',handelAddMovie);// add movie 
+server.use('/getMovies',handelGetMovies) // get movie 
+server.get('*', handleErrorNotFound); //404 
 server.use(handleServerError) //500
 
-//console.log(moviesDataJson);  Passed 
+
 
 function Movies (title, poster_path, overview) {        //for JSONData
     this.title = title;
@@ -35,27 +41,24 @@ function MoviesAPI (id,title,release_date, poster_path, overview) {      //for A
     this.overview = overview;
 }
 
-//----------------------Home---------------------------------------
+// //-----------------------Home---------------------------------------
 
 function handleGet(request, response) {
  
     let data = new Movies (moviesDataJson.title,  moviesDataJson.poster_path, moviesDataJson.overview);
     
-    return response.status(200).json(data);
+     response.status(200).json(data);
 }
-
-
-//---------------------------Favourites -----------------------------------------
+// //---------------------------Favourites -----------------------------------------
 function handleFavPage(request, response) {
-    //console.log("fav");
-    return response.status(200).send("Welcome to Favorite Movies Page");
+   
+     response.status(200).send("Welcome to Favorite Movies Page");
 }
-//----------------------------Trending------------------------------------
+// //----------------------------Trending------------------------------------
 function handleTrendingPage (request , response)
 {   
     let dataAPI=[]; 
     axios.get(url1).then((result)=>{
-        //console.log(result); 
         result.data.results.forEach(data =>{
         dataAPI.push(new MoviesAPI (data.id ,data.title,data.release_date, data.poster_path, data.overview ));
         });
@@ -64,11 +67,12 @@ function handleTrendingPage (request , response)
         handleServerError (errMsg); 
     });
 }
-//------------------------------Search-------------------------------
+// //------------------------------Search-------------------------------
 function handleSearchPage (request , response){
+    let searchedMovie=request.query.searchedMovie;
     let searchAPI = []; 
-    let search = "Happiness";
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.APIKEY}&query=${search}`;
+   //let search = "Happiness";
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.APIKEY}&query=${searchedMovie}`;
     axios.get(url).then((result)=>{
         result.data.results.forEach(data =>{
             searchAPI.push(new MoviesAPI (data.id ,data.title,data.release_date, data.poster_path, data.overview ));
@@ -77,25 +81,58 @@ function handleSearchPage (request , response){
     }).catch((errMsg)=>{
         handleServerError (errMsg); 
     });
-    //console.log("Search");
-
 
 }
-//-------------------------------Error--------------------------------------
+
+// //-------------------------------Task12----------------------------------
+function handelAddMovie(request , response)
+{
+    const movie = request.body; 
+    let sql= `INSERT INTO Movies (title,release_date, poster_path, overview)VALUES($1,$2,$3,$4) RETURNING *;`;
+    
+    let values = [movie.title,movie.release_date,movie.poster_path,movie.overview]; 
+    client.query(sql,values).then(data=>{response.status(200).json(data.rows)}).catch(error=>{
+        handleServerError(error,request,response);
+    });
+}
+
+function handelGetMovies (request,response)
+{
+    let sql='SELECT * FROM Movies;';
+    client.query(sql).then(data=>{
+    response.status(200).json(data.rows)
+    }).catch(error=>{
+        handleServerError(error,request,response);
+    });
+}
+// //-------------------------------Errors--------------------------------------
 
 function handleErrorNotFound (request,response){
-     response.status(404).send("Sorry! This page is not found");
+    const error = {
+        status : 404,
+        message : "Sorry! This page is not found"
+    };
+     response.status(404).send(error);
     
 }
 
-function handleServerError (Error,request,response){                      //How to call it ? 
-  //  response.status(500).send(`Sorry! Error ${Error} Happened`);
-    console.log("500");
+function handleServerError (Error,request,response){                      
+    const error = {
+        status : 500,
+        message : Error
+    };
+    response.status(500).send(error);
 }
 
-server.listen(PORT,()=>{
+client.connect().then(()=>{
+    server.listen(PORT,()=>{
     console.log(`listining to port ${PORT}`)
+    });
+});
 
+
+// server.listen(PORT,()=>{
+//     console.log(`listining to port ${PORT}`)
+// });
 // server.listen(3000, ()=>{
 //     console.log("listinig to port 3000");
-});

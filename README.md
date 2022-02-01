@@ -1,7 +1,7 @@
 # Movies-Library
 Task day 11 - Prep course - JV : Movies-Library 
 
-# Movies Libraby - 01
+# Movies Libraby - 03
 
 **Author Name**: Bara'ah Abusara
 
@@ -12,7 +12,17 @@ Task day 11 - Prep course - JV : Movies-Library
 ## Overview
 
 ## Getting Started
-<!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
+you should start by cloning my project, then add a .env file with you own APIKEY ( if you don't have one generate in from [Here](https://developers.themoviedb.org/3/getting-started/introduction) ) ,a PORT and a DATABASE_URL following the following format : postgres://username:password@localhost:5432/databaseName.
+
+Then install following packages : express,cors,axios and pg.
+
 
 ## Project Features
-<!-- What are the features included in you app -->
+I have many routs in my project :
+- Home Page with different movies data .
+- Most favourite movies page .
+- Most trending movies page .
+- Search page where you can search for type of movies.
+- Add movies page to the data base.
+- Get movies from the data base.
+- Handeling 404 and 500 errors.
