@@ -1,4 +1,5 @@
 # Movies-Library
+ Task11
 Task day 11 - Prep course - JV : Movies-Library 
 
 # Movies Library - 03
@@ -18,6 +19,7 @@ Then install following packages : express,cors,axios and pg.
 
 
 ## Project Features
+Task13
 I have many routs in my project :
 - Home Page with different movies data .
 - Most favourite movies page .
@@ -26,3 +28,4 @@ I have many routs in my project :
 - Add movies page to the data base.
 - Get movies from the data base.
 - Handeling 404 and 500 errors.
+
