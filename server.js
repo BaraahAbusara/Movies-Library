@@ -88,7 +88,7 @@ function handleSearchPage (request , response){
 function handelAddMovie(request , response)
 {
     const movie = request.body; 
-    let sql= `INSERT INTO Movie (title,release_date, poster_path, overview)VALUES($1,$2,$3,$4) RETURNING *;`;
+    let sql= `INSERT INTO movieTable (title,release_date, poster_path, overview)VALUES($1,$2,$3,$4) RETURNING *;`;
     
     let values = [movie.title,movie.release_date,movie.poster_path,movie.overview]; 
     client.query(sql,values).then(data=>{response.status(200).json(data.rows)}).catch(error=>{
@@ -98,7 +98,7 @@ function handelAddMovie(request , response)
 
 function handelGetMovies (request,response)
 {
-    let sql='SELECT * FROM Movie;';
+    let sql='SELECT * FROM movieTable;';
     client.query(sql).then(data=>{
     response.status(200).json(data.rows)
     }).catch(error=>{
