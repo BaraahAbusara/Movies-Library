@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS movieTable (
     title VARCHAR (225),
     release_date VARCHAR (225),
     poster_path VARCHAR (225),
-    overview VARCHAR (4000)
+    overview VARCHAR (4000),
+    comment VARCHAR (4000)
 );
