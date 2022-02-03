@@ -9,7 +9,8 @@ const moviesDataJson = require('./Movies-data/data.json');
 //const client = new pg.Client(process.env.DATABASE_URL);
 const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false } });
+    ssl: { rejectUnauthorized: false } 
+});
 
 const url1 = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}&language=en-US`;
  
@@ -34,7 +35,7 @@ server.delete('/delete/:id',handelDeleteMovie);
 server.get('/getMovie/:id',handelGetMovieId);
 //-------------------------------------------------------------
 server.get('*', handleErrorNotFound); //404 
-server.use(handleServerError) //500
+//server.use(handleServerError) //500
 
 
 
@@ -75,7 +76,7 @@ function handleTrendingPage (request , response)
         });
         response.status(200).json(dataAPI);
     }).catch((errMsg)=>{
-        handleServerError (errMsg); 
+        handleServerError (errMsg,request,response); 
     });
 }
 // //------------------------------Search-------------------------------
@@ -90,7 +91,7 @@ function handleSearchPage (request , response){
         }); 
         response.status(200).json(searchAPI);
     }).catch((errMsg)=>{
-        handleServerError (errMsg); 
+        handleServerError (errMsg,request,response); 
     });
 
 }
@@ -103,6 +104,7 @@ function handelAddMovie(request , response)
     
     let values = [movie.title,movie.release_date,movie.poster_path,movie.overview,movie.comment]; 
     client.query(sql,values).then(data=>{response.status(200).json(data.rows)}).catch(error=>{
+        console.log(error);
         handleServerError(error,request,response);
     });
 }
@@ -166,7 +168,7 @@ function handelGetMovieId (request,response)        //get movie by id
 
 function handleErrorNotFound (request,response){
     const error = {
-        status : 404,
+    //    status : 404,
         message : "Sorry! This page is not found"
     };
      response.status(404).send(error);
@@ -175,9 +177,10 @@ function handleErrorNotFound (request,response){
 
 function handleServerError (Error,request,response){                      
     const error = {
-        status : 500,
+    //    status : 500,
         message : Error
     };
+    console.log(response); 
     response.status(500).send(error);
 }
 
