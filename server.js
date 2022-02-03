@@ -1,11 +1,15 @@
 'use strict';
+//comment 
 require('dotenv').config(); 
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const pg = require('pg');
 const moviesDataJson = require('./Movies-data/data.json'); 
-const client = new pg.Client(process.env.DATABASE_URL);
+//const client = new pg.Client(process.env.DATABASE_URL);
+const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false } });
 
 const url1 = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}&language=en-US`;
  
