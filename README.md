@@ -1,6 +1,5 @@
 # Movies-Library
- Task11
-Task day 11 - Prep course - JV : Movies-Library 
+Task day [11-15]  - Prep course - JV : Movies-Library 
 
 # Movies Library - 04
 
@@ -25,6 +24,8 @@ I have many routs in my project :
 - Home Page with different movies data .
 - Most favourite movies page .
 - Most trending movies page .
+- Upcoming movies page.
+- Top rated movies page.
 - Search page where you can search for type of movies.
 - Add movies page to the data base.
 - Get movies from the data base.

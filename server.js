@@ -6,11 +6,11 @@ const cors = require('cors');
 const axios = require('axios');
 const pg = require('pg');
 const moviesDataJson = require('./Movies-data/data.json'); 
-//const client = new pg.Client(process.env.DATABASE_URL);
-const client = new pg.Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false } 
-});
+const client = new pg.Client(process.env.DATABASE_URL);
+// const client = new pg.Client({
+//     connectionString: process.env.DATABASE_URL,
+//     ssl: { rejectUnauthorized: false } 
+// });
 
 const url1 = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}&language=en-US`;
  
@@ -26,6 +26,9 @@ server.get('/favourite', handleFavPage); //fav
 //----------------------------------------------------
 server.get('/trending', handleTrendingPage); //trending 
 server.get('/search', handleSearchPage); //search ::  localhost:3000/search?searchedMovie=women
+//-------------------------------------------------------------
+server.get('/movie/top_rated',hendelTopRatedMovies);
+server.get('/movie/upcoming',hendelUpComingMovies);
 //-----------------------------------------------------
 server.post('/addMovie',handelAddMovie);// add movie 
 server.use('/getMovies',handelGetMovies) ;// get movie 
@@ -52,8 +55,7 @@ function MoviesAPI (id,title,release_date, poster_path, overview) {      //for A
     this.poster_path = poster_path;
     this.overview = overview;
 }
-
-// //-----------------------Home---------------------------------------
+//-----------------------Home---------------------------------------
 
 function handleGet(request, response) {
  
@@ -61,12 +63,12 @@ function handleGet(request, response) {
     
      response.status(200).json(data);
 }
-// //---------------------------Favourites -----------------------------------------
+//---------------------------Favourites -----------------------------------------
 function handleFavPage(request, response) {
    
      response.status(200).send("Welcome to Favorite Movies Page");
 }
-// //----------------------------Trending------------------------------------
+//----------------------------Trending------------------------------------
 function handleTrendingPage (request , response)
 {   
     let dataAPI=[]; 
@@ -79,7 +81,7 @@ function handleTrendingPage (request , response)
         handleServerError (errMsg,request,response); 
     });
 }
-// //------------------------------Search-------------------------------
+//------------------------------Search-------------------------------
 function handleSearchPage (request , response){
     let searchedMovie=request.query.searchedMovie;
     let searchAPI = []; 
@@ -95,8 +97,37 @@ function handleSearchPage (request , response){
     });
 
 }
+//---------------------------------------------------------------------------
+function hendelTopRatedMovies (request,response)
+{
+    let dataTopRatedMovies=[];
+    let url2 = `https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.APIKEY}&language=en-US&page=1`;
+    axios.get(url2).then((result)=>{
+        result.data.results.forEach(data =>{
+            dataTopRatedMovies.push(new MoviesAPI (data.id ,data.title,data.release_date, data.poster_path, data.overview ));
+        });
+        response.status(200).json(dataTopRatedMovies);
+    }).catch((errMsg)=>{
+        handleServerError (errMsg,request,response); 
+    });
+}
+function hendelUpComingMovies (request,response)
+{
+    let dataUpComingMovies=[];
+    let url3 = `https://api.themoviedb.org/3/movie/upcoming?api_key=${process.env.APIKEY}&language=en-US&page=1`;
+    axios.get(url3).then((result)=>{
+        result.data.results.forEach(data =>{
+            dataUpComingMovies.push(new MoviesAPI (data.id ,data.title,data.release_date, data.poster_path, data.overview ));
+        });
+        response.status(200).json(dataUpComingMovies);
+    }).catch((errMsg)=>{
+        handleServerError (errMsg,request,response); 
+    });
+}
 
-// //-------------------------------Task13----------------------------------
+
+ 
+//-------------------------------Task13----------------------------------
 function handelAddMovie(request , response)
 {
     const movie = request.body; 
@@ -177,7 +208,7 @@ function handleErrorNotFound (request,response){
 
 function handleServerError (Error,request,response){                      
     const error = {
-    //    status : 500,
+        status : 500,
         message : Error
     };
     console.log(response); 
